@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adverbs vs. Adjectives Quiz</title>
+    <title>Adjectives & Adverbs Practice</title>
     <style>
         :root {
             --primary: #00A8E8;
@@ -203,7 +203,7 @@
 
     <div id="app-container">
         <header>
-            <div class="title">Adjective vs. Adverb Quiz</div>
+            <div class="title">Adverb & Adjective Usage</div>
             <div id="q-count">1 / 15</div>
         </header>
 
@@ -216,7 +216,7 @@
                 <div class="question-text" id="question-text">Loading...</div>
                 <div class="options-grid" id="options-grid"></div>
                 <div id="feedback-area"></div>
-                <button id="next-btn" onclick="goToNext()">Next &rarr;</button>
+                <button id="next-btn" onclick="goToNext()">Next Question &rarr;</button>
             </div>
         </div>
 
@@ -227,27 +227,27 @@
             </div>
             <div id="feedback-title" style="font-size: 1.5em; font-weight: 800; margin-bottom: 10px;"></div>
             <div id="feedback-msg" style="margin-bottom: 30px; color: #64748b;"></div>
-            <button class="restart-btn" onclick="resetQuiz()">Try Again</button>
+            <button class="restart-btn" onclick="resetQuiz()">Restart Practice</button>
         </div>
     </div>
 
     <script>
         const questions = [
-            { q: "The teachers in our school are _______.", options: ["enthusiastic", "enthusiastically"], a: 0, exp: "'Enthusiastic' is a predicate adjective that follows the linking verb 'are' to describe the teachers." },
-            { q: "Teachers in our school must work _______.", options: ["hard", "hardly"], a: 0, exp: "'Hard' is an adverb describing the action verb 'work'." },
-            { q: "This movie is _______.", options: ["bad", "badly"], a: 0, exp: "'Bad' is an adjective used after the linking verb 'is'." },
-            { q: "The actors performed _______.", options: ["bad", "badly"], a: 1, exp: "'Badly' is an adverb describing the action verb 'performed'." },
-            { q: "The popcorn is _______.", options: ["good", "well"], a: 0, exp: "'Good' is an adjective used after a linking verb to describe the noun (popcorn)." },
-            { q: "The seats recline _______.", options: ["good", "well"], a: 1, exp: "'Well' is an adverb describing the action verb 'recline'." },
-            { q: "I don't feel very _______.", options: ["good", "well"], a: 1, exp: "When describing a person's health after a linking verb, 'well' is used as an adjective." },
-            { q: "Skating is a _______ workout.", options: ["real", "really"], a: 0, exp: "'Real' is an adjective describing the noun 'workout'." },
-            { q: "Skating is _______ fun.", options: ["real", "really"], a: 1, exp: "'Really' is an adverb describing the adjective 'fun'." },
-            { q: "A skater needs _______ feet.", options: ["sure", "surely"], a: 0, exp: "'Sure' is an adjective describing the noun 'feet'." },
-            { q: "To go fast is _______ the most fun.", options: ["sure", "surely"], a: 1, exp: "'Surely' is an adverb modifying the entire phrase." },
-            { q: "_______ skaters are careful.", options: ["Most", "Almost"], a: 0, exp: "'Most' is an adjective here describing 'skaters'." },
-            { q: "I _______ never fall.", options: ["most", "almost"], a: 1, exp: "'Almost' is an adverb describing the adverb 'never'." },
-            { q: "She is a _______ good singer.", options: ["real", "really"], a: 1, exp: "Use the adverb 'really' to modify the adjective 'good'." },
-            { q: "The team played _______ today.", options: ["good", "well"], a: 1, exp: "'Well' is the adverb form used to describe the action verb 'played'." }
+            { q: "Kari finished the quiz (most quick, _______) of all.", options: ["most quick", "most quickly"], a: 1, exp: "Use 'most quickly' because it is an adverb modifying the action verb 'finished'." },
+            { q: "The baby ducklings (ready, _______) took to the water.", options: ["ready", "readily"], a: 1, exp: "'Readily' is an adverb modifying the action verb 'took'." },
+            { q: "The nurse noticed she didn't look very (good, _______).", options: ["good", "well"], a: 1, exp: "When describing a person's health after a linking verb, 'well' is the correct adjective form." },
+            { q: "Tina wanted very (bad, _______) to make the team.", options: ["bad", "badly"], a: 1, exp: "'Badly' is an adverb modifying the verb 'wanted'." },
+            { q: "Pete was (most, _______) finished with lunch when I arrived.", options: ["most", "almost"], a: 1, exp: "Use 'almost' (meaning 'nearly') as an adverb modifying 'finished'." },
+            { q: "The plan is (_______, possibly) to carry out.", options: ["possible", "possibly"], a: 0, exp: "'Possible' is a predicate adjective following the linking verb 'is'." },
+            { q: "I (sure, _______) will not go there with you!", options: ["sure", "surely"], a: 1, exp: "'Surely' is an adverb used to emphasize the statement." },
+            { q: "The twelfth of November last year was (real, _______) chilly.", options: ["real", "really"], a: 1, exp: "Use the adverb 'really' to modify the adjective 'chilly'." },
+            { q: "Luis tried to look at his chances (realistic, _______).", options: ["realistic", "realistically"], a: 1, exp: "'Realistically' is an adverb describing HOW he looked at his chances." },
+            { q: "Teachers in our school must work _______.", options: ["hard", "hardly"], a: 0, exp: "'Hard' is the correct adverb form to describe intense effort." },
+            { q: "The team played _______ today.", options: ["good", "well"], a: 1, exp: "Use 'well' as an adverb to describe how the team 'played'." },
+            { q: "The movie we saw was actually quite _______.", options: ["bad", "badly"], a: 0, exp: "'Bad' is an adjective following the linking verb 'was'." },
+            { q: "_______ students are careful with their work.", options: ["Most", "Almost"], a: 0, exp: "Use 'Most' as an adjective to modify the noun 'students'." },
+            { q: "The seats in the theater recline _______.", options: ["good", "well"], a: 1, exp: "'Well' is an adverb modifying the action verb 'recline'." },
+            { q: "A skater needs _______ feet to be successful.", options: ["sure", "surely"], a: 0, exp: "Use the adjective 'sure' to describe the noun 'feet'." }
         ];
 
         let currentQuestionIndex = 0;
@@ -296,7 +296,7 @@
                 btns[correctIndex].classList.add('correct');
                 btns[correctIndex].querySelector('.icon').innerHTML = '&#10003;';
                 feedbackArea.className = 'feedback-wrong';
-                feedbackArea.innerHTML = `<strong>Not quite.</strong> The answer is <em>${questions[currentQuestionIndex].options[correctIndex]}</em>. ${questions[currentQuestionIndex].exp}`;
+                feedbackArea.innerHTML = `<strong>Not quite.</strong> The correct answer is <em>${questions[currentQuestionIndex].options[correctIndex]}</em>. ${questions[currentQuestionIndex].exp}`;
             }
 
             feedbackArea.style.display = 'block';
@@ -322,17 +322,17 @@
             const msg = document.getElementById('feedback-msg');
 
             if (score === 15) {
-                title.innerText = "Grammar Pro! 🏆";
-                msg.innerText = "You perfectly distinguish between adjectives and adverbs!";
+                title.innerText = "Grammar Legend! 🏆";
+                msg.innerText = "You have mastered the difference between adjectives and adverbs!";
             } else if (score >= 12) {
-                title.innerText = "Great Job! 🌟";
-                msg.innerText = "You have a solid understanding of linking verbs vs. action verbs.";
+                title.innerText = "Fantastic Work! 🌟";
+                msg.innerText = "You have a very strong grasp of these tricky modifiers.";
             } else if (score >= 8) {
-                title.innerText = "Nice Effort! 👍";
-                msg.innerText = "Remember: adjectives describe nouns, adverbs describe verbs/adjectives.";
+                title.innerText = "Good Job! 👍";
+                msg.innerText = "You understand the basics, but review the 'good/well' and 'almost/most' rules.";
             } else {
                 title.innerText = "Keep Practicing! 📚";
-                msg.innerText = "Focus on the confusing pairs like real/really and good/well.";
+                msg.innerText = "Review the provided chart and try the exercise again to improve.";
             }
         }
 
