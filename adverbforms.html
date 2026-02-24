@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparative & Superlative Adverbs Quiz</title>
+    <style>
+        :root {
+            --primary: #00A8E8;
+            --secondary: #007EA7;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --bg: #f8fafc;
+            --text: #1e293b;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            font-size: 20pt; /* Requested font size */
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        #app-container {
+            width: 95vw;
+            height: 90vh;
+            max-width: 1000px;
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            padding: 40px;
+            box-sizing: border-box;
+        }
+
+        header {
+            border-bottom: 4px solid var(--primary);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .title {
+            color: var(--primary);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0;
+            font-size: 1.2em;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 6px;
+            margin-bottom: 30px;
+        }
+
+        #progress-bar {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            border-radius: 6px;
+            transition: width 0.4s ease;
+        }
+
+        #quiz-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .option-btn {
+            background: var(--white);
+            border: 3px solid #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 20pt;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary);
+            background-color: #f0f9ff;
+            transform: translateY(-2px);
+        }
+
+        .option-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Results Screen */
+        #results-screen {
+            display: none;
+            text-align: center;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 10px solid var(--primary);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 30px;
+        }
+
+        .score-num {
+            font-size: 60pt;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .feedback-title {
+            font-size: 1.5em;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .feedback-msg {
+            margin-bottom: 30px;
+            color: #64748b;
+        }
+
+        .restart-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            font-size: 20pt;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            align-self: center;
+        }
+
+        .restart-btn:hover {
+            background: var(--secondary);
+        }
+
+        @media (max-width: 768px) {
+            .options-grid { grid-template-columns: 1fr; }
+            #app-container { height: 95vh; padding: 20px; }
+            body { font-size: 16pt; }
+            .option-btn { font-size: 16pt; }
+            .restart-btn { font-size: 16pt; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <header>
+            <div class="title">Adverb Challenge</div>
+            <div id="q-count">1 / 15</div>
+        </header>
+
+        <div class="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+
+        <div id="quiz-area">
+            <div id="question-container">
+                <div class="question-text" id="question-text">Loading question...</div>
+                <div class="options-grid" id="options-grid">
+                    <!-- Options injected here -->
+                </div>
+            </div>
+        </div>
+
+        <div id="results-screen">
+            <div class="score-circle">
+                <div class="score-num" id="final-score">0</div>
+                <div style="font-size: 0.4em;">/ 15</div>
+            </div>
+            <div class="feedback-title" id="feedback-title">Great Work!</div>
+            <div class="feedback-msg" id="feedback-msg">You've completed the challenge.</div>
+            <button class="restart-btn" onclick="resetQuiz()">Take it Again</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { q: "Alicia studied _______ than Rex did.", options: ["hard", "harder", "hardest", "more hard"], a: 1 },
+            { q: "She records the experiment _______ accurately than he does.", options: ["more", "most", "harder", "better"], a: 0 },
+            { q: "Of all the students, she records it _______ accurately.", options: ["more", "most", "less", "better"], a: 1 },
+            { q: "Alicia studied _______ of all.", options: ["hard", "harder", "hardest", "most hard"], a: 2 },
+            { q: "The comparative form of 'well' is _______.", options: ["gooder", "better", "best", "more well"], a: 1 },
+            { q: "The superlative form of 'badly' is _______.", options: ["badder", "worse", "worst", "most badly"], a: 2 },
+            { q: "What is the comparative form of 'little' (amount)?", options: ["littler", "least", "less", "lesser"], a: 2 },
+            { q: "Amie sings _______ rhythmically of all the performers.", options: ["less", "least", "more", "most"], a: 1 },
+            { q: "Jarrett sings _______ well than he did yesterday.", options: ["less", "least", "leastly", "worse"], a: 0 },
+            { q: "Long adverbs usually require _______ for the comparative form.", options: ["-er", "-est", "more", "most"], a: 2 },
+            { q: "Short adverbs usually require _______ for the superlative form.", options: ["-er", "-est", "more", "most"], a: 1 },
+            { q: "Which of these is the comparative form of 'badly'?", options: ["badder", "worst", "worse", "less bad"], a: 2 },
+            { q: "He finished the task _______ than I expected.", options: ["fast", "faster", "fastest", "more fast"], a: 1 },
+            { q: "The negative superlative uses the word _______.", options: ["less", "least", "worse", "worst"], a: 1 },
+            { q: "To compare MORE than two actions, use the _______ form.", options: ["comparative", "superlative", "irregular", "negative"], a: 1 }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        const questionText = document.getElementById('question-text');
+        const optionsGrid = document.getElementById('options-grid');
+        const qCount = document.getElementById('q-count');
+        const progressBar = document.getElementById('progress-bar');
+        const quizArea = document.getElementById('quiz-area');
+        const resultsScreen = document.getElementById('results-screen');
+        const finalScore = document.getElementById('final-score');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const feedbackMsg = document.getElementById('feedback-msg');
+
+        function loadQuestion() {
+            const currentQuestion = questions[currentQuestionIndex];
+            questionText.innerText = currentQuestion.q;
+            qCount.innerText = `${currentQuestionIndex + 1} / ${questions.length}`;
+            progressBar.style.width = `${(currentQuestionIndex / questions.length) * 100}%`;
+            
+            optionsGrid.innerHTML = '';
+            currentQuestion.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = option;
+                btn.onclick = () => handleAnswer(index);
+                optionsGrid.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedIndex) {
+            if (selectedIndex === questions[currentQuestionIndex].a) {
+                score++;
+            }
+
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            quizArea.style.display = 'none';
+            resultsScreen.style.display = 'flex';
+            progressBar.style.width = '100%';
+            finalScore.innerText = score;
+
+            if (score === 15) {
+                feedbackTitle.innerText = "Adverb Master! 🏆";
+                feedbackMsg.innerText = "You have a perfect understanding of comparative and superlative forms!";
+            } else if (score >= 12) {
+                feedbackTitle.innerText = "Excellent Work! 🌟";
+                feedbackMsg.innerText = "You clearly understand the difference between -er/-est and more/most.";
+            } else if (score >= 8) {
+                feedbackTitle.innerText = "Good Effort! 👍";
+                feedbackMsg.innerText = "Remember: irregular forms like 'well' and 'badly' don't follow the usual rules.";
+            } else {
+                feedbackTitle.innerText = "Keep Practicing! 📚";
+                feedbackMsg.innerText = "Review the chart again, especially the irregular forms and negative comparatives.";
+            }
+        }
+
+        function resetQuiz() {
+            score = 0;
+            currentQuestionIndex = 0;
+            quizArea.style.display = 'flex';
+            resultsScreen.style.display = 'none';
+            loadQuestion();
+        }
+
+        // Start the quiz
+        window.onload = loadQuestion;
+    </script>
+</body>
+</html>
