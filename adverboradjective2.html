@@ -23,7 +23,7 @@
             margin: 0;
             height: 100vh;
             overflow: hidden;
-            font-size: 20pt; /* Base font size as requested */
+            font-size: 20pt;
         }
 
         .sidebar {
@@ -93,6 +93,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
 
         .audio-btn:hover {
@@ -100,8 +101,9 @@
             transform: scale(1.05);
         }
 
-        .audio-btn:active {
-            transform: scale(0.95);
+        .audio-btn:disabled {
+            opacity: 0.5;
+            cursor: wait;
         }
 
         .label {
@@ -114,31 +116,39 @@
             display: block;
         }
 
-        /* Custom scrollbar for Webkit */
+        .loader {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .sidebar::-webkit-scrollbar { width: 6px; }
         .sidebar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
 <body class="flex">
 
-    <!-- Sidebar -->
     <aside class="sidebar flex flex-col">
         <div class="p-6 border-b border-slate-800">
             <h1 class="text-2xl font-bold tracking-tight text-indigo-400">Lexicon.</h1>
         </div>
-        <div id="wordList" class="flex-grow">
-            <!-- Word items will be injected here -->
-        </div>
+        <div id="wordList" class="flex-grow"></div>
     </aside>
 
-    <!-- Main Content Area -->
     <main class="main-content">
-        <div id="displayArea" class="w-full flex justify-center">
-            <!-- Definition card will be injected here -->
-        </div>
+        <div id="displayArea" class="w-full flex justify-center"></div>
     </main>
 
     <script>
+        const apiKey = "";
         const words = [
             { id: "01", word: "Abound", meaning: "To exist in great numbers or quantities.", sentence: "Freshwater fish abound in these pristine mountain streams.", synonyms: "flourish, teem, overflow", antonyms: "lack, vanish, deficient", color: "#38bdf8" },
             { id: "02", word: "Braggart", meaning: "A person who boasts about their achievements or possessions.", sentence: "He was such a braggart that no one believed his true accomplishments.", synonyms: "boaster, show-off, swaggerer", antonyms: "modest person, humble soul", color: "#f87171" },
@@ -162,13 +172,84 @@
             { id: "20", word: "Turmoil", meaning: "A state of great disturbance, confusion, or uncertainty.", sentence: "The country was in political turmoil following the sudden election results.", synonyms: "confusion, upheaval, chaos", antonyms: "peace, order, calm", color: "#f87171" }
         ];
 
-        const wordList = document.getElementById('wordList');
-        const displayArea = document.getElementById('displayArea');
         let currentWordId = "01";
 
-        function playSound(id) {
-            const audio = new Audio(`${id}.mp3`);
-            audio.play().catch(e => console.log("Audio file not found: " + id + ".mp3"));
+        async function playSound(id) {
+            const btn = document.getElementById('audio-btn-main');
+            const icon = document.getElementById('audio-icon');
+            const loader = document.getElementById('audio-loader');
+            const wordData = words.find(w => w.id === id);
+            
+            try {
+                // UI Loading State
+                btn.disabled = true;
+                icon.classList.add('hidden');
+                loader.classList.remove('hidden');
+
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `Say clearly: ${wordData.word}` }] }],
+                        generationConfig: {
+                            responseModalities: ["AUDIO"],
+                            speechConfig: {
+                                voiceConfig: { prebuiltVoiceConfig: { voiceName: "Puck" } }
+                            }
+                        }
+                    })
+                });
+
+                const result = await response.json();
+                const audioData = result.candidates[0].content.parts[0].inlineData.data;
+                const mimeType = result.candidates[0].content.parts[0].inlineData.mimeType;
+                const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || "24000");
+
+                const wavBlob = pcmToWav(audioData, sampleRate);
+                const audioUrl = URL.createObjectURL(wavBlob);
+                const audio = new Audio(audioUrl);
+                await audio.play();
+            } catch (error) {
+                console.error("Speech Error:", error);
+            } finally {
+                btn.disabled = false;
+                icon.classList.remove('hidden');
+                loader.classList.add('hidden');
+            }
+        }
+
+        function pcmToWav(base64Pcm, sampleRate) {
+            const binaryString = window.atob(base64Pcm);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) bytes[i] = binaryString.charCodeAt(i);
+            
+            const buffer = new ArrayBuffer(44 + bytes.length);
+            const view = new DataView(buffer);
+
+            const writeString = (offset, string) => {
+                for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i));
+            };
+
+            writeString(0, 'RIFF');
+            view.setUint32(4, 36 + bytes.length, true);
+            writeString(8, 'WAVE');
+            writeString(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, 1, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 2, true);
+            view.setUint16(32, 2, true);
+            view.setUint16(34, 16, true);
+            writeString(36, 'data');
+            view.setUint32(40, bytes.length, true);
+
+            for (let i = 0; i < bytes.length; i++) {
+                view.setUint8(44 + i, bytes[i]);
+            }
+
+            return new Blob([buffer], { type: 'audio/wav' });
         }
 
         function highlightInSentence(sentence, word, color) {
@@ -180,7 +261,6 @@
             currentWordId = id;
             const wordData = words.find(w => w.id === id);
             
-            // Update sidebar UI
             document.querySelectorAll('.word-item').forEach(el => {
                 el.classList.remove('active');
                 el.style.color = '';
@@ -189,7 +269,6 @@
             activeEl.classList.add('active');
             activeEl.style.color = wordData.color;
 
-            // Render Card
             renderCard(wordData);
         }
 
@@ -203,10 +282,11 @@
                             <h2 class="text-6xl font-bold mb-2" style="color: ${data.color}">${data.word}</h2>
                             <p class="text-slate-500 font-mono text-sm uppercase tracking-widest">Entry #${data.id}</p>
                         </div>
-                        <button onclick="playSound('${data.id}')" class="audio-btn" title="Play Pronunciation">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <button id="audio-btn-main" onclick="playSound('${data.id}')" class="audio-btn" title="Play Pronunciation">
+                            <svg id="audio-icon" xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
                             </svg>
+                            <div id="audio-loader" class="loader hidden"></div>
                         </button>
                     </div>
 
@@ -243,10 +323,8 @@
                 div.textContent = item.word;
                 div.setAttribute('data-id', item.id);
                 div.onclick = () => selectWord(item.id);
-                wordList.appendChild(div);
+                document.getElementById('wordList').appendChild(div);
             });
-
-            // Start with the first word
             selectWord("01");
         }
 
